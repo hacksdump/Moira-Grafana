@@ -1,0 +1,24 @@
+{
+  "type": "panel",
+  "name": "Moira Panel",
+  "id": "moira-panel",
+
+  "dataFormats": ["time_series"],
+
+  "info": {
+    "description": "Grafana panel for Moira API",
+    "author": {
+      "name": "Harshit Maurya",
+      "url": "https://harshitmaurya.ml"
+    },
+    "keywords": ["Moira Panel"],
+    "links": [],
+    "screenshots": [],
+    "version": "0.3.0"
+  },
+
+  "dependencies": {
+    "grafanaVersion": "6.0.x",
+    "plugins": []
+  }
+}
