@@ -86,10 +86,10 @@ define(["@grafana/ui","react"], function(__WEBPACK_EXTERNAL_MODULE__grafana_ui__
 /************************************************************************/
 /******/ ({
 
-/***/ "./module.tsx":
-/*!********************!*\
-  !*** ./module.tsx ***!
-  \********************/
+/***/ "./components/MoiraPanel.tsx":
+/*!***********************************!*\
+  !*** ./components/MoiraPanel.tsx ***!
+  \***********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -99,7 +99,127 @@ define(["@grafana/ui","react"], function(__WEBPACK_EXTERNAL_MODULE__grafana_ui__
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.reactPanel = exports.MyPanelEditorProps = exports.MyPanel = undefined;
+exports.MoiraPanel = undefined;
+
+var _react = __webpack_require__(/*! react */ "react");
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var __extends = undefined && undefined.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+var __assign = undefined && undefined.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
+function MoiraConfigItem(props) {
+  var targets = props.target.targets.map(function (target) {
+    return _react2.default.createElement("li", {
+      key: target
+    }, target);
+  });
+  return _react2.default.createElement("div", null, _react2.default.createElement("div", null, _react2.default.createElement("h3", null, props.target.name), _react2.default.createElement("p", null, props.target.desc)), _react2.default.createElement("div", null, _react2.default.createElement("h4", null, "Warn Value:"), _react2.default.createElement("span", null, props.target.warn_value)), _react2.default.createElement("div", null, _react2.default.createElement("h4", null, "Targets: "), _react2.default.createElement("ul", null, targets)));
+}
+
+function MoiraConfigBox(props) {
+  var configItems = props.triggers.map(function (item) {
+    return _react2.default.createElement(MoiraConfigItem, {
+      key: item.id,
+      target: item
+    });
+  });
+  return _react2.default.createElement("div", null, configItems);
+}
+
+var MoiraPanel =
+/** @class */
+function (_super) {
+  __extends(MoiraPanel, _super);
+
+  function MoiraPanel(props) {
+    return _super.call(this, props) || this;
+  }
+
+  MoiraPanel.prototype.componentWillMount = function () {
+    var _this = this;
+
+    fetch('http://moira.local/api/trigger/search?onlyProblems=false&p=0&size=20&text=', {
+      mode: 'cors'
+    }).then(function (result) {
+      result.json().then(function (data) {
+        _this.props.onOptionsChange(__assign({}, _this.props.options, {
+          triggers: data.list
+        }));
+      });
+    });
+  };
+
+  MoiraPanel.prototype.render = function () {
+    var triggers = this.props.options.triggers;
+    var latestValue = this.props.data.series[0].rows[0][0];
+    return _react2.default.createElement("div", null, _react2.default.createElement("div", null, _react2.default.createElement("h3", null, "Latest Stat: "), latestValue), this.props.options.someText, _react2.default.createElement(MoiraConfigBox, {
+      triggers: triggers
+    }));
+  };
+
+  return MoiraPanel;
+}(_react.PureComponent);
+
+exports.MoiraPanel = MoiraPanel;
+
+/***/ }),
+
+/***/ "./components/MoiraPanelEditor.tsx":
+/*!*****************************************!*\
+  !*** ./components/MoiraPanelEditor.tsx ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.MoiraPanelEditor = undefined;
 
 var _react = __webpack_require__(/*! react */ "react");
 
@@ -151,97 +271,110 @@ var __assign = undefined && undefined.__assign || function () {
   return __assign.apply(this, arguments);
 };
 
-function MoiraConfigItem(props) {
-  var targets = props.targets.map(function (target) {
-    return _react2.default.createElement("li", null, target);
-  });
-  return _react2.default.createElement("div", null, _react2.default.createElement("div", null, _react2.default.createElement("h3", null, props.name), _react2.default.createElement("p", null, props.desc)), _react2.default.createElement("div", null, _react2.default.createElement("h4", null, "Targets: "), _react2.default.createElement("ul", null, targets)), _react2.default.createElement("div", null, _react2.default.createElement("h4", null, "Warn Value:"), _react2.default.createElement("span", null, props.warn_value)));
-}
-
-function MoiraConfigBox(props) {
-  var configItems = props.items.map(function (item) {
-    return _react2.default.createElement(MoiraConfigItem, {
-      target: item
-    });
-  });
-  return _react2.default.createElement("div", null, configItems);
-}
-
-var MyPanel =
+var MoiraPanelEditor =
 /** @class */
 function (_super) {
-  __extends(MyPanel, _super);
+  __extends(MoiraPanelEditor, _super);
 
-  function MyPanel(props) {
-    var _this = _super.call(this, props) || this;
-
-    _this.state = {
-      triggers: null
-    };
-    return _this;
-  }
-
-  MyPanel.prototype.componentDidMount = function () {
-    var _this = this;
-
-    fetch('http://moira.local/api/trigger/search?onlyProblems=false&p=0&size=20&text=').then(function (result) {
-      result.json().then(function (data) {
-        _this.setState({
-          triggers: data.list
-        });
-      });
-    });
-  };
-
-  MyPanel.prototype.render = function () {
-    var triggers = this.state.triggers;
-    return _react2.default.createElement(MoiraConfigBox, {
-      items: triggers
-    });
-  };
-
-  return MyPanel;
-}(_react.PureComponent);
-
-exports.MyPanel = MyPanel;
-
-var MyPanelEditorProps =
-/** @class */
-function (_super) {
-  __extends(MyPanelEditorProps, _super);
-
-  function MyPanelEditorProps() {
+  function MoiraPanelEditor() {
     var _this = _super !== null && _super.apply(this, arguments) || this;
 
-    _this.onBigTextChanged = function (evt) {
-      _this.props.onChange(__assign({}, _this.props.options, {
-        bigText: evt.target.value
+    _this.onTextChanged = function (event) {
+      _this.props.onOptionsChange(__assign({}, _this.props.options, {
+        someText: event.target.value
       }));
     };
 
     return _this;
   }
 
-  MyPanelEditorProps.prototype.render = function () {
-    var bigText = this.props.options.bigText;
-    return _react2.default.createElement(_ui.PanelOptionsGroup, {
-      title: "My options"
+  MoiraPanelEditor.prototype.render = function () {
+    return _react2.default.createElement("div", null, _react2.default.createElement(_ui.PanelOptionsGroup, {
+      title: "Trigger Choices"
     }, _react2.default.createElement(_ui.FormField, {
-      label: "Big text",
-      onChange: this.onBigTextChanged,
-      value: bigText
-    }));
+      label: "graphite",
+      onChange: this.onTextChanged
+    })), _react2.default.createElement(_ui.PanelOptionsGroup, {
+      title: "Graph Options"
+    }, _react2.default.createElement(_ui.FormField, {
+      label: "graph"
+    })));
   };
 
-  return MyPanelEditorProps;
+  return MoiraPanelEditor;
 }(_react.PureComponent);
 
-exports.MyPanelEditorProps = MyPanelEditorProps;
-var reactPanel = exports.reactPanel = new _ui.ReactPanelPlugin(MyPanel);
-reactPanel.setEditor(MyPanelEditorProps);
-reactPanel.setDefaults({
-  bigText: 'GrafanaCon'
+exports.MoiraPanelEditor = MoiraPanelEditor;
+
+/***/ }),
+
+/***/ "./module.tsx":
+/*!********************!*\
+  !*** ./module.tsx ***!
+  \********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
 });
+exports.plugin = undefined;
+
+var _ui = __webpack_require__(/*! @grafana/ui */ "@grafana/ui");
+
+var _MoiraPanel = __webpack_require__(/*! ./components/MoiraPanel */ "./components/MoiraPanel.tsx");
+
+var _MoiraPanelEditor = __webpack_require__(/*! ./components/MoiraPanelEditor */ "./components/MoiraPanelEditor.tsx");
+
+var _types = __webpack_require__(/*! ./types */ "./types.ts");
+
+var plugin = exports.plugin = new _ui.PanelPlugin(_MoiraPanel.MoiraPanel);
+plugin.setEditor(_MoiraPanelEditor.MoiraPanelEditor);
+plugin.setDefaults(_types.defaults);
+
+/***/ }),
+
+/***/ "./types.ts":
+/*!******************!*\
+  !*** ./types.ts ***!
+  \******************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var defaults = exports.defaults = {
+  minValue: 0,
+  maxValue: 100,
+  layout: 'biggauge',
+  showThresholdMarkers: true,
+  showThresholdLabels: false,
+  showLines: true,
+  showBars: false,
+  showPoints: false,
+  valueOptions: {
+    prefix: '',
+    suffix: '',
+    decimals: null,
+    stat: 'avg',
+    unit: 'none'
+  },
+  valueMappings: [],
+  thresholds: [{
+    index: 0,
+    value: -Infinity,
+    color: 'green'
+  }],
+  someText: 'Hello',
+  triggers: []
+};
 
 /***/ }),
 
