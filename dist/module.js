@@ -105,6 +105,8 @@ var _react = __webpack_require__(/*! react */ "react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _ui = __webpack_require__(/*! @grafana/ui */ "@grafana/ui");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var __extends = undefined && undefined.__extends || function () {
@@ -155,7 +157,15 @@ function MoiraConfigItem(props) {
       key: target
     }, target);
   });
-  return _react2.default.createElement("div", null, _react2.default.createElement("div", null, _react2.default.createElement("h3", null, props.target.name), _react2.default.createElement("p", null, props.target.desc)), _react2.default.createElement("div", null, _react2.default.createElement("h4", null, "Warn Value:"), _react2.default.createElement("span", null, props.target.warn_value)), _react2.default.createElement("div", null, _react2.default.createElement("h4", null, "Targets: "), _react2.default.createElement("ul", null, targets)));
+  return _react2.default.createElement("div", {
+    style: {
+      border: '1px solid #555',
+      borderRadius: '5px',
+      padding: '5px',
+      margin: '5px',
+      width: '50%'
+    }
+  }, _react2.default.createElement("div", null, _react2.default.createElement("h4", null, "Warn Value:"), _react2.default.createElement("span", null, props.target.warn_value)), _react2.default.createElement("div", null, _react2.default.createElement("h4", null, "Targets: "), _react2.default.createElement("ul", null, targets)));
 }
 
 function MoiraConfigBox(props) {
@@ -165,7 +175,11 @@ function MoiraConfigBox(props) {
       target: item
     });
   });
-  return _react2.default.createElement("div", null, configItems);
+  return _react2.default.createElement("div", {
+    style: {
+      display: 'flex'
+    }
+  }, configItems);
 }
 
 var MoiraPanel =
@@ -193,10 +207,34 @@ function (_super) {
 
   MoiraPanel.prototype.render = function () {
     var triggers = this.props.options.triggers;
-    var latestValue = this.props.data.series[0].rows[0][0];
-    return _react2.default.createElement("div", null, _react2.default.createElement("div", null, _react2.default.createElement("h3", null, "Latest Stat: "), latestValue), this.props.options.someText, _react2.default.createElement(MoiraConfigBox, {
-      triggers: triggers
-    }));
+
+    if (this.props.data.series) {
+      return _react2.default.createElement("div", null, _react2.default.createElement(_ui.GraphWithLegend, {
+        timeRange: this.props.timeRange,
+        width: 200,
+        height: 200,
+        series: [{
+          yAxis: 1,
+          label: this.props.data.series[0].name,
+          color: 'green',
+          isVisible: true,
+          data: this.props.data.series[0].rows
+        }],
+        isLegendVisible: true,
+        displayMode: _ui.LegendDisplayMode.List,
+        onSeriesColorChange: function onSeriesColorChange() {
+          return console.log('seriescolorchange');
+        },
+        onToggleSort: function onToggleSort() {
+          return console.log('togglesort');
+        },
+        placement: 'right'
+      }), _react2.default.createElement(MoiraConfigBox, {
+        triggers: triggers
+      }));
+    } else {
+      return _react2.default.createElement("div", null, "No datasource added");
+    }
   };
 
   return MoiraPanel;
@@ -294,9 +332,7 @@ function (_super) {
     }, _react2.default.createElement(_ui.FormField, {
       label: "graphite",
       onChange: this.onTextChanged
-    })), _react2.default.createElement(_ui.PanelOptionsGroup, {
-      title: "Graph Options"
-    }, _react2.default.createElement(_ui.FormField, {
+    }), _react2.default.createElement(_ui.Button, null)), _react2.default.createElement(_ui.PanelOptionsGrid, null, _react2.default.createElement(_ui.FormField, {
       label: "graph"
     })));
   };
