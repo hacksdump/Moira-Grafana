@@ -1,16 +1,12 @@
 import _ from 'lodash';
 import React, { PureComponent } from 'react';
-import { PanelProps, Gauge } from '@grafana/ui';
+import { PanelProps, GraphWithLegend, LegendDisplayMode } from '@grafana/ui';
 import { MoiraOptions } from '../types';
 
 function MoiraConfigItem(props) {
   const targets = props.target.targets.map(target => <li key={target}>{target}</li>);
   return (
-    <div>
-      <div>
-        <h3>{props.target.name}</h3>
-        <p>{props.target.desc}</p>
-      </div>
+    <div style={{ border: '1px solid #555', borderRadius: '5px', padding: '5px', margin: '5px', width: '50%' }}>
       <div>
         <h4>Warn Value:</h4>
         <span>{props.target.warn_value}</span>
@@ -25,7 +21,7 @@ function MoiraConfigItem(props) {
 
 function MoiraConfigBox(props) {
   const configItems = props.triggers.map(item => <MoiraConfigItem key={item.id} target={item} />);
-  return <div>{configItems}</div>;
+  return <div style={{ display: 'flex' }}>{configItems}</div>;
 }
 
 export class MoiraPanel extends PureComponent<PanelProps<MoiraOptions>> {
@@ -46,17 +42,34 @@ export class MoiraPanel extends PureComponent<PanelProps<MoiraOptions>> {
   }
   render() {
     const triggers = this.props.options.triggers;
-    const latestValue = this.props.data.series[0].rows[0][0];
-
-    return (
-      <div>
+    if (this.props.data.series) {
+      return (
         <div>
-          <h3>Latest Stat: </h3>
-          {latestValue}
+          <GraphWithLegend
+            timeRange={this.props.timeRange}
+            width={200}
+            height={200}
+            series={[
+              {
+                yAxis: 1,
+                label: this.props.data.series[0].name,
+                color: 'green',
+                isVisible: true,
+                data: this.props.data.series[0].rows,
+              },
+            ]}
+            isLegendVisible={true}
+            displayMode={LegendDisplayMode.List}
+            onSeriesColorChange={() => console.log('seriescolorchange')}
+            onToggleSort={() => console.log('togglesort')}
+            placement={'right'}
+          />
+
+          <MoiraConfigBox triggers={triggers} />
         </div>
-        {this.props.options.someText}
-        <MoiraConfigBox triggers={triggers} />
-      </div>
-    );
+      );
+    } else {
+      return <div>No datasource added</div>;
+    }
   }
 }

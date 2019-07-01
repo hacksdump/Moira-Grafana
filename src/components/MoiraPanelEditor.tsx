@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { PanelEditorProps, FormField, PanelOptionsGroup } from '@grafana/ui';
+import { PanelEditorProps, FormField, PanelOptionsGroup, PanelOptionsGrid, Button } from '@grafana/ui';
 
 import { MoiraOptions } from '../types';
 
@@ -15,10 +15,11 @@ export class MoiraPanelEditor extends PureComponent<PanelEditorProps<MoiraOption
       <div>
         <PanelOptionsGroup title="Trigger Choices">
           <FormField label="graphite" onChange={this.onTextChanged} />
+          <Button />
         </PanelOptionsGroup>
-        <PanelOptionsGroup title="Graph Options">
+        <PanelOptionsGrid>
           <FormField label="graph" />
-        </PanelOptionsGroup>
+        </PanelOptionsGrid>
       </div>
     );
   }
