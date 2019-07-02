@@ -1,0 +1,21 @@
+table {
+  width: 80%;
+
+  tr {
+    width: 100%;
+
+    th,
+    td {
+      text-align: right;
+      width: 50%;
+    }
+    th {
+      font-weight: bold;
+      color: rgb(24, 191, 233);
+      font-size: 1.5em;
+    }
+    td {
+      font-size: 1.2em;
+    }
+  }
+}
