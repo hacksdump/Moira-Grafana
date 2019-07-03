@@ -4,21 +4,6 @@ import { PanelProps, GraphWithLegend, LegendDisplayMode } from '@grafana/ui';
 import { MoiraOptions } from '../types';
 
 export class MoiraPanel extends PureComponent<PanelProps<MoiraOptions>> {
-  constructor(props) {
-    super(props);
-  }
-  componentWillMount() {
-    fetch('http://moira.local/api/trigger/search?onlyProblems=false&p=0&size=20&text=', {
-      mode: 'cors',
-    }).then(result => {
-      result.json().then(data => {
-        this.props.onOptionsChange({
-          ...this.props.options,
-          triggers: data.list,
-        });
-      });
-    });
-  }
   render() {
     const avg = Math.round(_.meanBy(this.props.data.series[0].rows, point => point[0]) * 100) / 100;
     const current = Math.round(this.props.data.series[0].rows.slice(-1)[0][0] * 100) / 100;

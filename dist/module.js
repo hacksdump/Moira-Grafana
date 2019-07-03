@@ -736,44 +736,14 @@ var __extends = undefined && undefined.__extends || function () {
   };
 }();
 
-var __assign = undefined && undefined.__assign || function () {
-  __assign = Object.assign || function (t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-      s = arguments[i];
-
-      for (var p in s) {
-        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-      }
-    }
-
-    return t;
-  };
-
-  return __assign.apply(this, arguments);
-};
-
 var MoiraPanel =
 /** @class */
 function (_super) {
   __extends(MoiraPanel, _super);
 
-  function MoiraPanel(props) {
-    return _super.call(this, props) || this;
+  function MoiraPanel() {
+    return _super !== null && _super.apply(this, arguments) || this;
   }
-
-  MoiraPanel.prototype.componentWillMount = function () {
-    var _this = this;
-
-    fetch('http://moira.local/api/trigger/search?onlyProblems=false&p=0&size=20&text=', {
-      mode: 'cors'
-    }).then(function (result) {
-      result.json().then(function (data) {
-        _this.props.onOptionsChange(__assign({}, _this.props.options, {
-          triggers: data.list
-        }));
-      });
-    });
-  };
 
   MoiraPanel.prototype.render = function () {
     var avg = Math.round(_lodash2.default.meanBy(this.props.data.series[0].rows, function (point) {
@@ -841,7 +811,7 @@ exports.MoiraPanel = MoiraPanel;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.MoiraPanelEditor = undefined;
+exports.MoiraPanelEditor = exports.MoiraConfigBox = exports.MoiraConfigItem = undefined;
 
 var _react = __webpack_require__(/*! react */ "react");
 
@@ -893,36 +863,114 @@ var __assign = undefined && undefined.__assign || function () {
   return __assign.apply(this, arguments);
 };
 
-function MoiraConfigItem(props) {
-  var targets = props.target.targets.map(function (target) {
-    return _react2.default.createElement("li", {
-      key: target
-    }, target);
-  });
-  return _react2.default.createElement("div", {
-    style: {
-      border: '1px solid #555',
-      borderRadius: '5px',
-      padding: '5px',
-      margin: '5px',
-      width: '50%'
-    }
-  }, _react2.default.createElement("div", null, _react2.default.createElement("h4", null, "Warn Value:"), _react2.default.createElement("span", null, props.target.warn_value)), _react2.default.createElement("div", null, _react2.default.createElement("h4", null, "Targets: "), _react2.default.createElement("ul", null, targets)));
-}
+var MoiraConfigItem =
+/** @class */
+function (_super) {
+  __extends(MoiraConfigItem, _super);
 
-function MoiraConfigBox(props) {
-  var configItems = props.triggers.map(function (item) {
-    return _react2.default.createElement(MoiraConfigItem, {
-      key: item.id,
-      target: item
+  function MoiraConfigItem(props) {
+    var _this = _super.call(this, props) || this;
+
+    _this.changedValue = function (event, param) {
+      var id = _this.props.id;
+      var newLimit = parseInt(event.target.value);
+
+      if (newLimit && Number.isNaN(newLimit)) {
+        return;
+      }
+
+      clearTimeout(MoiraConfigItem.keypressTimeout);
+      var updatedData = Object.assign({}, _this.props);
+
+      if (param === 'warn') {
+        var newWarningLimit = !!newLimit ? newLimit : 0;
+
+        _this.setState({
+          warn_value: newWarningLimit
+        });
+
+        updatedData['warn_value'] = newWarningLimit;
+      } else if (param === 'error') {
+        var newErrorLimit = !!newLimit ? newLimit : 0;
+
+        _this.setState({
+          error_value: newErrorLimit
+        });
+
+        updatedData['error_value'] = newErrorLimit;
+      }
+
+      MoiraConfigItem.keypressTimeout = setTimeout(function () {
+        fetch('http://localhost:8081/api/trigger/' + id, {
+          method: 'PUT',
+          body: JSON.stringify(updatedData),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+      }, 2000);
+    };
+
+    _this.state = {
+      warn_value: _this.props.warn_value,
+      error_value: _this.props.error_value
+    };
+    return _this;
+  }
+
+  MoiraConfigItem.prototype.render = function () {
+    var _this = this;
+
+    var targets = this.props.targets.map(function (target) {
+      return _react2.default.createElement("li", {
+        key: target
+      }, target);
     });
-  });
-  return _react2.default.createElement("div", {
-    style: {
-      display: 'flex'
-    }
-  }, configItems);
-}
+    return _react2.default.createElement(_ui.PanelOptionsGroup, {
+      title: this.props.name
+    }, _react2.default.createElement("div", null, _react2.default.createElement("h4", null, "Targets: "), _react2.default.createElement("ul", null, targets)), _react2.default.createElement("div", null, _react2.default.createElement(_ui.FormField, {
+      label: 'Warn',
+      value: this.state.warn_value,
+      onChange: function onChange(event) {
+        return _this.changedValue(event, 'warn');
+      }
+    }), _react2.default.createElement(_ui.FormField, {
+      label: 'Error',
+      value: this.state.error_value,
+      onChange: function onChange(event) {
+        return _this.changedValue(event, 'error');
+      }
+    })));
+  };
+
+  MoiraConfigItem.keypressTimeout = null;
+  return MoiraConfigItem;
+}(_react.PureComponent);
+
+exports.MoiraConfigItem = MoiraConfigItem;
+
+var MoiraConfigBox =
+/** @class */
+function (_super) {
+  __extends(MoiraConfigBox, _super);
+
+  function MoiraConfigBox() {
+    return _super !== null && _super.apply(this, arguments) || this;
+  }
+
+  MoiraConfigBox.prototype.render = function () {
+    var configItems = this.props.triggers.map(function (item) {
+      return _react2.default.createElement(MoiraConfigItem, __assign({
+        key: item.id
+      }, item));
+    });
+    return _react2.default.createElement("div", null, configItems);
+  };
+
+  return MoiraConfigBox;
+}(_react.PureComponent);
+
+exports.MoiraConfigBox = MoiraConfigBox;
 
 var MoiraPanelEditor =
 /** @class */
@@ -930,27 +978,28 @@ function (_super) {
   __extends(MoiraPanelEditor, _super);
 
   function MoiraPanelEditor() {
-    var _this = _super !== null && _super.apply(this, arguments) || this;
-
-    _this.onTextChanged = function (event) {
-      _this.props.onOptionsChange(__assign({}, _this.props.options, {
-        someText: event.target.value
-      }));
-    };
-
-    return _this;
+    return _super !== null && _super.apply(this, arguments) || this;
   }
+
+  MoiraPanelEditor.prototype.componentWillMount = function () {
+    var _this = this;
+
+    fetch('http://moira.local/api/trigger/search?onlyProblems=false&p=0&size=20&text=', {
+      mode: 'cors'
+    }).then(function (result) {
+      result.json().then(function (data) {
+        _this.props.onOptionsChange(__assign({}, _this.props.options, {
+          triggers: data.list
+        }));
+      });
+    });
+  };
 
   MoiraPanelEditor.prototype.render = function () {
     var triggers = this.props.options.triggers;
-    return _react2.default.createElement("div", null, _react2.default.createElement(_ui.PanelOptionsGroup, {
-      title: "Trigger Choices"
-    }, _react2.default.createElement(MoiraConfigBox, {
+    return _react2.default.createElement("div", null, _react2.default.createElement(MoiraConfigBox, {
       triggers: triggers
-    })), _react2.default.createElement(_ui.PanelOptionsGrid, null, _react2.default.createElement(_ui.FormField, {
-      label: "graphite",
-      onChange: this.onTextChanged
-    })));
+    }));
   };
 
   return MoiraPanelEditor;
