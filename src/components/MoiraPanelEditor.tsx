@@ -81,9 +81,14 @@ export class MoiraConfigItem extends PureComponent<Props, State> {
   }
 }
 
-function MoiraConfigBox(props) {
-  const configItems = props.triggers.map(item => <MoiraConfigItem key={item.id} {...item} />);
-  return <div>{configItems}</div>;
+interface TriggerSettings {
+  triggers: Props[];
+}
+export class MoiraConfigBox extends PureComponent<TriggerSettings> {
+  render() {
+    const configItems = this.props.triggers.map(item => <MoiraConfigItem key={item.id} {...item} />);
+    return <div>{configItems}</div>;
+  }
 }
 export class MoiraPanelEditor extends PureComponent<PanelEditorProps<MoiraOptions>> {
   componentWillMount() {
