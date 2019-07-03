@@ -28,7 +28,7 @@ export class MoiraConfigItem extends PureComponent<Props, State> {
   changedValue = (event, param: 'warn' | 'error') => {
     const id = this.props.id;
     const newLimit = parseInt(event.target.value);
-    if (Number.isNaN(newLimit)) {
+    if (newLimit && Number.isNaN(newLimit)) {
       return;
     }
     clearTimeout(MoiraConfigItem.keypressTimeout);
@@ -53,9 +53,7 @@ export class MoiraConfigItem extends PureComponent<Props, State> {
         headers: {
           'Content-Type': 'application/json',
         },
-      }).then(() =>
-        console.log('Moira trigger updated with value ' + updatedData['warn_value'] + ' ' + updatedData['error_value'])
-      );
+      });
     }, 2000);
   };
   render() {
